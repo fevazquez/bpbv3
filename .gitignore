@@ -1,0 +1,7 @@
+# Ignore environment and log files
+.env
+*.log
+
+# Ignore caches and venv
+venv
+__pycache__
