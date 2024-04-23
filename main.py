@@ -102,18 +102,16 @@ class Bot(commands.Bot):
     username: str = str(ctx.author)
     command: str = str(ctx.command)
     channel: str = str(ctx.channel)
-    guild: str = str(ctx.guild)
 
-    if guild:
+    if ctx.guild:
+      guild: str = str(ctx.guild)
       guild_id: str = str(ctx.guild.id)
       self.logger.info(
         f'[ guild:{ctx.guild.name}, id:{ctx.guild.id}, channel:{channel} ] {username}: "{prefix}{command}"'
       )
     else:
-      self.logger.info(
-        self.logger.info(f'[DM] {username}: "{command}"')
-      )
-
+      self.logger.info(f'[DM] {username}: "{prefix}{command}"')
+      
   async def on_command_failed(self, ctx: Context, error) -> None:
     """
     Runs after a normal command catches an error. This will be used in the future when 
@@ -129,9 +127,6 @@ class Bot(commands.Bot):
 
     if isinstance(error, commands.MissingRequiredArguments):
       await ctx.send(embed=embed)
-
-
-    
 
 # Entry point
 def main() -> None:
