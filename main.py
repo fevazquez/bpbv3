@@ -1,11 +1,12 @@
-import asyncio
 import discord
 import os
 import logging
 import platform
+import random
 from typing import Final 
 from dotenv import load_dotenv
-from discord.ext import commands
+from discord import CustomActivity, Embed
+from discord.ext import commands, tasks
 from discord.ext.commands import Context
 from discord import Intents, Message
 
@@ -41,8 +42,10 @@ class Bot(commands.Bot):
     self.logger = logger
     self.invite_link = invite_link
 
-  # Loads all the cogs for all supported commands
   async def load_extensions(self) -> None:
+    """
+    Loads all the cogs for all supported commands
+    """
     for filename in os.listdir('./cogs'):
       if filename.endswith('.py'):
         cog = filename[:-3]
@@ -55,6 +58,24 @@ class Bot(commands.Bot):
         except Exception as e:
           cog = f'{type(e).__name__}: {e}'
           logger.error(f'Failed to load cog: #{cog}')
+
+  @tasks.loop(minutes=1.0)
+  async def status_task(self) -> None:
+    """
+    Setup the game status task of the bot
+
+    Discord does not support emojis in a bot's custom status. This is not a limitation of the API but of Discord itself.
+    Work around is include the emoji in the status message.
+    """
+    statuses = ["🍌 Domo Arigato Your Girls A Thot Though", "💎 yo soy holder"]
+    await self.change_presence(activity=CustomActivity(name=random.choice(statuses)))
+
+  @status_task.before_loop
+  async def before_status_task(self) -> None:
+    """
+    Before starting the status changing task, we make sure the bot is ready
+    """
+    await self.wait_until_ready()
 
   async def setup_hook(self) -> None:
     """
@@ -75,6 +96,8 @@ class Bot(commands.Bot):
 
     except Exception as e:
       logger.error(f'Failed to load cogs: {e}')
+
+    self.status_task.start()
 
     # Print to console to let the user know its alive.
     print(f'{self.user} is now running!')
@@ -104,29 +127,57 @@ class Bot(commands.Bot):
     channel: str = str(ctx.channel)
 
     if ctx.guild:
-      guild: str = str(ctx.guild)
-      guild_id: str = str(ctx.guild.id)
       self.logger.info(
         f'[ guild:{ctx.guild.name}, id:{ctx.guild.id}, channel:{channel} ] {username}: "{prefix}{command}"'
       )
     else:
       self.logger.info(f'[DM] {username}: "{prefix}{command}"')
       
-  async def on_command_failed(self, ctx: Context, error) -> None:
+  async def on_command_error(self, ctx: Context, error) -> None:
     """
     Runs after a normal command catches an error. This will be used in the future when 
-    we add privileged commands
+    we add privileged commands.
 
     :param error: the error we ecountered
     """
-    embed = discord.Embed(
-      title="Error!",
-      description=str(error),
+    username: str = str(ctx.author)
+    command: str = str(ctx.command)
+    channel: str = str(ctx.channel)
+
+    embed = Embed(
+      title="🚨 Error! 🚨",
       color=0xe6400e
     )
 
-    if isinstance(error, commands.MissingRequiredArguments):
-      await ctx.send(embed=embed)
+    # if isinstance(error, commands.MissingRequiredArguments):
+    #   embed.add_field(
+    #     name='I need more information bro!',
+    #     value=f'**Please pass all required arguments!**',
+    #     inline=False,
+    #   )
+
+    if isinstance(error, commands.CommandNotFound):
+      embed.add_field(
+        name='What did you call me?',
+        value=f'**Invalid command. Try using** `{prefix}help` **to figure out commands!**',
+        inline=False,
+      )
+
+    else:
+      embed.add_field(
+        name='I am confused.',
+        value=f'💩 Check in with your local bot master. I just had a brain fart. 💩',
+        inline=False,
+      )
+    
+    await ctx.send(embed=embed)
+
+    if ctx.guild:
+      self.logger.error(
+        f'[ guild:{ctx.guild.name}, id:{ctx.guild.id}, channel:{channel} ] {username}: "{prefix}{command}" ERROR: {error}'
+      )
+    else:
+      self.logger.error(f'[DM] {username}: "{prefix}{command}" [ERROR]: {error}')
 
 # Entry point
 def main() -> None:
