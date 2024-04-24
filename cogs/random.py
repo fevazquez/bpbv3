@@ -1,5 +1,4 @@
 import datetime
-import time
 from discord import Embed
 from discord.ext import commands
 from discord.ext.commands import Context
@@ -51,7 +50,6 @@ class Random(commands.Cog, name='random'):
     # is to send the link, and discord auto-makes and embed video
     if is_wed:
       await ctx.send('https://www.youtube.com/watch?v=du-TY1GUFGk')
-
  
 # Add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot) -> None:

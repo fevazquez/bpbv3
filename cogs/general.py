@@ -49,13 +49,12 @@ class General(commands.Cog, name='general'):
 
     embed.add_field(
       name='Prefix:',
-      value='">" for normal commands',
+      value=f'"{self.bot.prefix}" for normal commands',
       inline=False,
     )
 
     embed.set_footer(text=f'Requested by {ctx.author}')
     await ctx.send(embed=embed)
-
 
   @commands.command(
     name='invite',
@@ -79,7 +78,6 @@ class General(commands.Cog, name='general'):
     except discord.Forbidden:
       await ctx.send(embed=embed)
 
-
   @commands.command(
     name='help',
     description='List all commands the bot has to offer.',
@@ -92,7 +90,7 @@ class General(commands.Cog, name='general'):
     :param context: The application command context.
     """
     embed = Embed(
-      title="ℹ️ Help me",
+      title='ℹ️ Help me',
       description=f'Commands at your disposal:',
       color=0x00FF00, # green hex
     )
