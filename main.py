@@ -41,6 +41,7 @@ class Bot(commands.Bot):
     )
     self.logger = logger
     self.invite_link = invite_link
+    self.prefix = prefix
 
   async def load_extensions(self) -> None:
     """
@@ -67,7 +68,7 @@ class Bot(commands.Bot):
     Discord does not support emojis in a bot's custom status. This is not a limitation of the API but of Discord itself.
     Work around is include the emoji in the status message.
     """
-    statuses = ["🍌 Domo Arigato Your Girls A Thot Though", "💎 yo soy holder"]
+    statuses = ['🍌 Domo Arigato Your Girls A Thot Though', '💎 yo soy holder']
     await self.change_presence(activity=CustomActivity(name=random.choice(statuses)))
 
   @status_task.before_loop
@@ -80,7 +81,7 @@ class Bot(commands.Bot):
   async def setup_hook(self) -> None:
     """
     This function executes once at the start of the bot run. Creates the logs file, 
-    and attempts to loads all the cogs.
+    and attempts to load all the cogs.
     """
     self.logger.info('------------------------------------------')
     self.logger.info(f'Logged in as {self.user.name}')
@@ -112,7 +113,7 @@ class Bot(commands.Bot):
 
     # Prevent infinite bot loop where it responds to iteself 
     # and ignore all incoming messages that are not appropriately prefixed
-    if username == self.user or not user_message.startswith('>'):
+    if username == self.user or not user_message.startswith(self.prefix):
       return
 
     await self.process_commands(message)
@@ -128,10 +129,10 @@ class Bot(commands.Bot):
 
     if ctx.guild:
       self.logger.info(
-        f'[ guild:{ctx.guild.name}, id:{ctx.guild.id}, channel:{channel} ] {username}: "{prefix}{command}"'
+        f'[ guild:{ctx.guild.name}, id:{ctx.guild.id}, channel:{channel} ] {username}: "{self.prefix}{command}"'
       )
     else:
-      self.logger.info(f'[DM] {username}: "{prefix}{command}"')
+      self.logger.info(f'[DM] {username}: "{self.prefix}{command}"')
       
   async def on_command_error(self, ctx: Context, error) -> None:
     """
@@ -145,7 +146,7 @@ class Bot(commands.Bot):
     channel: str = str(ctx.channel)
 
     embed = Embed(
-      title="🚨 Error! 🚨",
+      title='🚨 Error! 🚨',
       color=0xe6400e
     )
 
@@ -159,7 +160,7 @@ class Bot(commands.Bot):
     if isinstance(error, commands.CommandNotFound):
       embed.add_field(
         name='What did you call me?',
-        value=f'**Invalid command. Try using** `{prefix}help` **to figure out commands!**',
+        value=f'**Invalid command. Try using** `{self.prefix}help` **to figure out commands!**',
         inline=False,
       )
 
@@ -174,10 +175,10 @@ class Bot(commands.Bot):
 
     if ctx.guild:
       self.logger.error(
-        f'[ guild:{ctx.guild.name}, id:{ctx.guild.id}, channel:{channel} ] {username}: "{prefix}{command}" ERROR: {error}'
+        f'[ guild:{ctx.guild.name}, id:{ctx.guild.id}, channel:{channel} ] {username}: "{self.prefix}{command}" ERROR: {error}'
       )
     else:
-      self.logger.error(f'[DM] {username}: "{prefix}{command}" [ERROR]: {error}')
+      self.logger.error(f'[DM] {username}: "{self.prefix}{command}" [ERROR]: {error}')
 
 # Entry point
 def main() -> None:

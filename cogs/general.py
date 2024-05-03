@@ -37,7 +37,7 @@ class General(commands.Cog, name='general'):
     :param context: The application command context.
     """
     embed = Embed(
-      title="ehyeh asher ehyeh",
+      title='ehyeh asher ehyeh',
       color=0x00FF00, # green hex
     )
 
@@ -96,6 +96,10 @@ class General(commands.Cog, name='general'):
     )
 
     for cog in self.bot.cogs:
+      # We dont want to expose admin commands to regular users for security reasons.
+      if cog.lower() == 'admin':
+        continue
+
       current_cog = self.bot.get_cog(cog.lower())
       commands = current_cog.get_commands()
 
