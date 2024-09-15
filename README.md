@@ -56,6 +56,12 @@ Proceed to activate the virtual environment
 source .env/bin/activate
 ```
 
+NOTE:
+We can deactivate the environment with:
+```
+deactivate
+```
+
 Finally, we can load the necessary dependencies with pip
 
 ```bash
