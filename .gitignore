@@ -2,6 +2,6 @@
 .env
 *.log
 
-# Ignore caches and venv
-venv
+# Ignore caches and venvs
+venv*
 __pycache__

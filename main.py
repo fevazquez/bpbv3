@@ -126,15 +126,16 @@ class Bot(commands.Bot):
     username: str = str(ctx.author)
     command: str = str(ctx.command)
     channel: str = str(ctx.channel)
+    arguments: str = str(" ".join(str(arg) for arg in ctx.args[2:]))
 
     if ctx.guild:
       self.logger.info(
-        f'[ guild:{ctx.guild.name}, id:{ctx.guild.id}, channel:{channel} ] {username}: "{self.prefix}{command}"'
+        f'[ guild:{ctx.guild.name}, id:{ctx.guild.id}, channel:{channel} ] {username}: "{self.prefix}{command} {arguments}"'
       )
     else:
       self.logger.info(f'[DM] {username}: "{self.prefix}{command}"')
       
-  async def on_command_error(self, ctx: Context, error) -> None:
+  async def on_command_error(self, ctx: Context, error, *args) -> None:
     """
     Runs after a normal command catches an error. This will be used in the future when 
     we add privileged commands.
@@ -144,23 +145,45 @@ class Bot(commands.Bot):
     username: str = str(ctx.author)
     command: str = str(ctx.command)
     channel: str = str(ctx.channel)
+    arguments: str = str(" ".join(str(arg) for arg in ctx.args[2:]))
 
     embed = Embed(
       title='🚨 Error! 🚨',
       color=0xe6400e
     )
 
-    # if isinstance(error, commands.MissingRequiredArguments):
-    #   embed.add_field(
-    #     name='I need more information bro!',
-    #     value=f'**Please pass all required arguments!**',
-    #     inline=False,
-    #   )
+    if isinstance(error, commands.MissingRequiredArgument):
+      embed.add_field(
+        name='I need more information bro!',
+        value=f'**Please pass all required arguments!**',
+        inline=False,
+      )
 
-    if isinstance(error, commands.CommandNotFound):
+    elif isinstance(error, commands.CommandNotFound):
       embed.add_field(
         name='What did you call me?',
         value=f'**Invalid command. Try using** `{self.prefix}help` **to figure out commands!**',
+        inline=False,
+      )
+
+    elif isinstance(error, commands.CheckFailure):
+      embed.add_field(
+        name='Who told you I can do that?',
+        value=f'**Nothing to see here comrade.**',
+        inline=False,
+      )
+
+    elif isinstance(error, commands.BadArgument):
+      embed.add_field(
+        name='I am confuzled',
+        value=f'**I dont understand what you gave me. Please refer to `{self.prefix}help` menu.**',
+        inline=False,
+      )
+
+    elif isinstance( error, commands.TooManyArguments):
+       embed.add_field(
+        name='Uhhhh I dont need that many arguments',
+        value=f'**Please refer to the command help message for more info.**',
         inline=False,
       )
 
@@ -175,10 +198,12 @@ class Bot(commands.Bot):
 
     if ctx.guild:
       self.logger.error(
-        f'[ guild:{ctx.guild.name}, id:{ctx.guild.id}, channel:{channel} ] {username}: "{self.prefix}{command}" ERROR: {error}'
+        f'[ guild:{ctx.guild.name}, id:{ctx.guild.id}, channel:{channel} ] {username}: "{self.prefix}{command} {arguments}" ERROR: {error}'
       )
     else:
-      self.logger.error(f'[DM] {username}: "{self.prefix}{command}" [ERROR]: {error}')
+      self.logger.error(
+        f'[DM] {username}: "{self.prefix}{command} {arguments}" [ERROR]: {error}'
+      )
 
 # Entry point
 def main() -> None:

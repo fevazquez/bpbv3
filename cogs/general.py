@@ -28,7 +28,7 @@ class General(commands.Cog, name='general'):
   @commands.command(
     name='botinfo',
     description='Get some arguably useful information about the bot',
-    aliases=['binfo']
+    aliases=['meta']
   )
   async def botinfo(self, ctx: Context) -> None:
     """
@@ -45,7 +45,7 @@ class General(commands.Cog, name='general'):
     embed.add_field(
       name='Python Version:', value=f'{platform.python_version()}', inline=True
     )
-    embed.add_field(name='Bot version:', value='0.0.1 - Alpha', inline=True)
+    embed.add_field(name='Bot version:', value='0.0.2 - Alpha', inline=True)
 
     embed.add_field(
       name='Prefix:',
