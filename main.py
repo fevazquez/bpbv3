@@ -9,7 +9,7 @@ from discord import CustomActivity, Embed
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
 from discord import Intents, Message
-from PIL import Image  # if using a local image
+from PIL import Image
 from io import BytesIO
 
 # Load secrets
@@ -22,7 +22,7 @@ prefix: Final[str] = os.getenv('DEFAULT_PREFIX')
 logger: logging.Logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-file_handler: logging.FileHandler = logging.FileHandler(filename='bot.log', encoding='utf-8', mode='w')
+file_handler: logging.FileHandler = logging.FileHandler(filename='logs/bot.log', encoding='utf-8', mode='w')
 file_handler_formatter: logging.Formatter = logging.Formatter(
   '[{asctime}] [{levelname:<8}] {name}: {message}', '%Y-%m-%d %H:%M:%S', style='{'
 )
@@ -72,12 +72,6 @@ class Bot(commands.Bot):
     statuses = ['🍌 Domo Arigato Your Girls A Thot Though', '💎 yo soy holder']
     await self.change_presence(activity=CustomActivity(name=random.choice(statuses)))
 
-    # image = Image.open('img/avatar.png')
-    # new_icon_bytes = BytesIO()
-    # image.save(new_icon_bytes, format='PNG')
-
-    # # Edit the bot's avatar using the bytes-like object
-    # await self.user.edit(avatar=bytes(new_icon_bytes.getvalue()))
 
   @tasks.loop(minutes=1.0)
   async def avatar_task(self) -> None:

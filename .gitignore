@@ -1,6 +1,7 @@
 # Ignore environment and log files
 .env
 *.log
+logs
 
 # Ignore caches and venvs
 venv*
