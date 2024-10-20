@@ -9,12 +9,14 @@ from discord import CustomActivity, Embed
 from discord.ext import commands, tasks
 from discord.ext.commands import Context
 from discord import Intents, Message
+from PIL import Image  # if using a local image
+from io import BytesIO
 
 # Load secrets
 load_dotenv()
 TOKEN: Final[str] = os.getenv('DISCORD_TOKEN')
 invite_link: Final[str] = os.getenv('INVITE_LINK')
-prefix: Final[str] = '>' # to be moved to json file, apparently its the better approach
+prefix: Final[str] = os.getenv('DEFAULT_PREFIX') 
 
 # Setup logger
 logger: logging.Logger = logging.getLogger()
@@ -65,11 +67,38 @@ class Bot(commands.Bot):
     """
     Setup the game status task of the bot
 
-    Discord does not support emojis in a bot's custom status. This is not a limitation of the API but of Discord itself.
-    Work around is include the emoji in the status message.
+    Discord does not support emojis in a bot's custom status. This is not a limitation of the API but of Discord itself. Work around is include the emoji in the status message.
     """
     statuses = ['🍌 Domo Arigato Your Girls A Thot Though', '💎 yo soy holder']
     await self.change_presence(activity=CustomActivity(name=random.choice(statuses)))
+
+    # image = Image.open('img/avatar.png')
+    # new_icon_bytes = BytesIO()
+    # image.save(new_icon_bytes, format='PNG')
+
+    # # Edit the bot's avatar using the bytes-like object
+    # await self.user.edit(avatar=bytes(new_icon_bytes.getvalue()))
+
+  @tasks.loop(minutes=1.0)
+  async def avatar_task(self) -> None:
+    """
+    Setup the avatar the bot
+    """
+
+    image = Image.open('img/avatar.png')
+    new_icon_bytes = BytesIO()
+    image.save(new_icon_bytes, format='PNG')
+
+    # Edit the bot's avatar using the bytes-like object
+    await self.user.edit(avatar=bytes(new_icon_bytes.getvalue()))
+
+  @avatar_task.before_loop
+  async def before_status_task(self) -> None:
+    """
+    Before starting the status changing task, we make sure the bot is ready
+    """
+    await self.wait_until_ready()
+
 
   @status_task.before_loop
   async def before_status_task(self) -> None:
@@ -121,7 +150,7 @@ class Bot(commands.Bot):
   async def on_command_completion(self, ctx: Context) -> None:
     """
     Runs after every successful command. We log the request here tracking the 
-    discord guild (server), guild id, channel, username and command 
+    discord guild (server), guild id, channel, username and command with any parameters
     """
     username: str = str(ctx.author)
     command: str = str(ctx.command)
@@ -189,7 +218,7 @@ class Bot(commands.Bot):
 
     else:
       embed.add_field(
-        name='I am confused.',
+        name='I am confuzled.',
         value=f'💩 Check in with your local bot master. I just had a brain fart. 💩',
         inline=False,
       )

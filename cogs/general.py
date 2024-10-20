@@ -11,6 +11,7 @@ class General(commands.Cog, name='general'):
   @commands.command(
     name='ping',
     description='This is a command that checks if the bot is healthy',
+    aliases=['p']
   )
   async def ping(self, ctx: Context) -> None:
     """

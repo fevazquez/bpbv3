@@ -77,6 +77,37 @@ class Admin(commands.Cog, name='admin'):
 
     await ctx.send(embed=embed)
 
+  @commands.guild_only()
+  @commands.has_permissions(administrator=True)
+  @commands.command(
+    name='set_prefix',
+    description='Change the bot command prefix',
+    aliases=['cp']
+  )
+  async def change_prefix(self, ctx: Context, new_prefix: str) -> None:
+    """
+    Change the command prefix of the bot
+
+    :param context: The application command context.
+    """
+    if new_prefix == self.bot.prefix:
+      embed = Embed(
+        title='No change needed',
+        description=f'Command prefix **is already `{new_prefix}`!** No changes needed.',
+        color=0x00FF00, # green hex
+      )
+    else:
+      self.bot.prefix = new_prefix
+
+      embed = Embed(
+        title='Success!',
+        description=f'Command prefix is now {self.bot.prefix}',
+        color=0x00FF00, # green hex
+      )
+
+    await ctx.send(embed=embed)
+
+
 # Add the cog to the bot so that it can load, unload, reload and use it's content.
 async def setup(bot) -> None:
   await bot.add_cog(Admin(bot))

@@ -10,7 +10,7 @@ class Random(commands.Cog, name='random'):
 
   @commands.command(
     name='wednesday',
-    description='This is a command that checks if the bot is healthy',
+    description='Is it Wednesday my doods?',
     aliases=['wed']
   )
   async def wednesday(self, ctx: Context) -> None:
