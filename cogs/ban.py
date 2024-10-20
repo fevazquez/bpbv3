@@ -26,10 +26,10 @@ class Ban(commands.Cog, name='ban'):
     )
 
     ban_count = 1
-    if name == "paul":
+    if name.lower() == "paul":
       embed.add_field(
         name='',
-        value=f'{name} has been banned. He has been banned {ban_count} times! my prefix is {}',
+        value=f'{name} has been banned. He has been banned {ban_count} times!',
         inline=False,
       )
 
